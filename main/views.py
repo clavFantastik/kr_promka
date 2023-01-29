@@ -2,18 +2,14 @@ import datetime
 
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
+
 from django.http import Http404
 from django.shortcuts import render, redirect
-from django.utils.safestring import mark_safe
+
 from main.forms import LoginForm, AddSnippetForm
 from main.models import Snippet
-from django.utils.html import escape
-from pygments import highlight
-from pygments.lexers import PythonLexer
-from pygments.formatters import HtmlFormatter
-from django.utils.html import strip_tags
-from django.http import HttpResponse
+
+
 
 
 
@@ -71,7 +67,7 @@ def view_snippet_page(request, id):
     context = get_base_context(request, 'Просмотр сниппета')
     try:
         record = Snippet.objects.get(id=id)
-        code = (highlight(record.code, PythonLexer(), HtmlFormatter()))
+
 
         context['addform'] = AddSnippetForm(
             {
