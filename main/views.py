@@ -5,9 +5,16 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.shortcuts import render, redirect
-
+from django.utils.safestring import mark_safe
 from main.forms import LoginForm, AddSnippetForm
 from main.models import Snippet
+from django.utils.html import escape
+from pygments import highlight
+from pygments.lexers import PythonLexer
+from pygments.formatters import HtmlFormatter
+from django.utils.html import strip_tags
+from django.http import HttpResponse
+
 
 
 def get_base_context(request, pagename):
@@ -33,17 +40,28 @@ def add_snippet_page(request):
                 code=addform.data['code'],
                 creation_date=datetime.datetime.now(),
             )
+            record.user = context['user']
             record.save()
             id = record.id
+
+            context['addform'] = AddSnippetForm(
+                initial={
+                    'user': str(context['user']),
+                }
+            )
+
             messages.add_message(request, messages.SUCCESS, "Сниппет успешно добавлен")
-            return redirect('view_snippet', id=id)
+            redirect('view_snippet', id=id)
+            return render(request, 'pages/add_snippet.html', context)
+
         else:
             messages.add_message(request, messages.ERROR, "Некорректные данные в форме")
             return redirect('add_snippet')
     else:
+        h = context['user']
         context['addform'] = AddSnippetForm(
             initial={
-                'user': 'AnonymousUser',
+                'user': str(h),
             }
         )
     return render(request, 'pages/add_snippet.html', context)
@@ -53,13 +71,16 @@ def view_snippet_page(request, id):
     context = get_base_context(request, 'Просмотр сниппета')
     try:
         record = Snippet.objects.get(id=id)
+        code = (highlight(record.code, PythonLexer(), HtmlFormatter()))
+
         context['addform'] = AddSnippetForm(
-            initial={
-                'user': 'AnonymousUser',
+            {
+                'user': str(record.user),
                 'name': record.name,
-                'code': record.code,
             }
         )
+
+        context['code']=record.code
     except Snippet.DoesNotExist:
         raise Http404
     return render(request, 'pages/view_snippet.html', context)
@@ -89,4 +110,23 @@ def logout_page(request):
 
 
 def my_snippets_page(request):
-    raise NotImplementedError
+    context = get_base_context(request, 'Мои сниппеты')
+    if context['user']!='l':
+        record = Snippet.objects.all()
+        context['addform'] = []
+        for i in record:
+            initial={
+                    'user': str(i.user),
+                    'name': i.name ,
+                    'id': str(i.id),
+                    'date': str(i.creation_date).split('.')[0]
+            }
+            if initial['user']=='vasya':
+                context['addform'] += [{'name':initial['name'],'date':initial['date'], 'id':initial['id']}]
+
+
+
+        return render(request, 'pages/my_page.html', context)
+
+    else:
+        return redirect('index')

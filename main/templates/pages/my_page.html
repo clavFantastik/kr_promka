@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+    textarea {
+        font-family:monospace;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+
+<table class="table">
+    <thead>
+    <tr>
+
+            <th scope="col" class="bg-dark" style="color:white"><h4 class="navbar-nav mr-auto">ID</h4></th>
+            <th scope="col" class="bg-dark" style="color:white"><h4 class="navbar-nav mr-auto">Название</h4></th>
+            <th scope="col" class="bg-dark" style="color:white"><h4 class="navbar-nav mr-auto">Дата создания</h4></th>
+
+    </tr>
+    </thead>
+    <tbody>
+    {% for i in addform %}
+    <tr>
+        <th scope="row"> {{ i.id }}</th>
+        <td style="color:blue"><a href="/snippets/{{i.id}}" style="text-decoration:none">{{ i.name }}</a></td>
+        <td>{{ i.date }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

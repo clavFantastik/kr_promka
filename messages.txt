@@ -1,0 +1,31 @@
+Использование messages framework
+
+При работе с пользовательскими действиями может потребоваться информировать пользователей о результатах их действий. 
+Джанго имеет встроенную платформу сообщений, которая позволяет отображать уведомления для пользователей. 
+Платформа сообщений расположена на уровне django.contrib.messages
+
+
+from django.contrib import messages
+messages.error(request, 'Something went wrong')
+
+
+{% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li class="{{ message.tags }}">
+                {{ message|safe }}
+                <a href="#" class="close">X</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+
+
+
+Ссылки:
+en источник:
+https://docs.djangoproject.com/en/4.1/ref/contrib/messages/
+
+ru источник:
+https://pocoz.gitbooks.io/django-v-primerah/content/glava-4-sozdanie-social-website/registratsiya-polzovatelei-i-profili-polzovatelei/ispolzovanie-messages-framework.html
